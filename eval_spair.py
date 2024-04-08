@@ -23,30 +23,25 @@ def main(args):
     test_path = 'PairAnnotation/test'
     json_list = os.listdir(os.path.join(dataset_path, test_path))
     all_cats = os.listdir(os.path.join(dataset_path, 'JPEGImages'))
+
+    # prepare json & image lists
     cat2json = {}
-
-    for cat in all_cats:
-        cat_list = []
-        for i in json_list:
-            if cat in i:
-                cat_list.append(i)
-        cat2json[cat] = cat_list
-
-    # get test image path for all cats
     cat2img = {}
     for cat in all_cats:
+        cat2json[cat] = []
         cat2img[cat] = []
-        cat_list = cat2json[cat]
-        for json_path in cat_list:
-            with open(os.path.join(dataset_path, test_path, json_path)) as temp_f:
-                data = json.load(temp_f)
-                temp_f.close()
-            src_imname = data['src_imname']
-            trg_imname = data['trg_imname']
-            if src_imname not in cat2img[cat]:
-                cat2img[cat].append(src_imname)
-            if trg_imname not in cat2img[cat]:
-                cat2img[cat].append(trg_imname)
+        for json_path in json_list:
+            if cat in json_path:
+                cat2json[cat].append(json_path)
+                with open(os.path.join(dataset_path, test_path, json_path)) as temp_f:
+                    data = json.load(temp_f)
+                    temp_f.close()
+                src_imname = data['src_imname']
+                trg_imname = data['trg_imname']
+                if src_imname not in cat2img[cat]:
+                    cat2img[cat].append(src_imname)
+                if trg_imname not in cat2img[cat]:
+                    cat2img[cat].append(trg_imname)
 
     if args.dift_model == 'sd':
         dift = SDFeaturizer4Eval(cat_list=all_cats)
