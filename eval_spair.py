@@ -46,7 +46,7 @@ class SPairEvaluator:
             for json_path in self.json_list:
                 if cat in json_path:
                     self.cat2json[cat].append(json_path)
-                    with open(os.path.join(self.dataset_path, self.test_path, self.json_path)) as temp_f:
+                    with open(os.path.join(self.dataset_path, self.test_path, json_path)) as temp_f:
                         data = json.load(temp_f)
                         temp_f.close()
                     src_imname = data['src_imname']
