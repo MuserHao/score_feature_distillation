@@ -147,8 +147,8 @@ class SPairEvaluator:
         pck_dict['overall'] = all_correct / all_total * 100 # overall pck
         avg_pck_dict['overall'] = np.mean(total_pck) * 100 # average pck per image
         if verbal:
-            print(f'All per image PCK@0.1: {avg_pck_dict['overall']:.2f}')
-            print(f'All per point PCK@0.1: {pck_dict['overall']:.2f}')
+            print(f'All per image PCK@0.1: {avg_pck_dict["overall"]:.2f}')
+            print(f'All per point PCK@0.1: {pck_dict["overall"]:.2f}')
         return pck_dict, avg_pck_dict
 
 
