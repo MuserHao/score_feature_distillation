@@ -9,8 +9,9 @@ import os
 import json
 from PIL import Image
 import torch.nn as nn
+import matplotlib.pyplot as plt
 
-def get_data_lists(all_cats, dataset_path, json_list, test_path):
+def get_data_lists(all_cats, json_list, testset_path):
     cat2json = {}
     cat2img = {}
     for cat in all_cats:
@@ -19,7 +20,7 @@ def get_data_lists(all_cats, dataset_path, json_list, test_path):
         for json_path in json_list:
             if cat in json_path:
                 cat2json[cat].append(json_path)
-                with open(os.path.join(dataset_path, test_path, json_path)) as temp_f:
+                with open(os.path.join(testset_path, json_path)) as temp_f:
                     data = json.load(temp_f)
                     temp_f.close()
                 src_imname = data['src_imname']
@@ -59,7 +60,7 @@ def evaluation(args):
     all_cats = os.listdir(os.path.join(dataset_path, 'JPEGImages'))
 
     # prepare json & image lists
-    cat2json, cat2img = get_data_lists(all_cats, dataset_path, json_list, test_path)
+    cat2json, cat2img = get_data_lists(all_cats, json_list, os.path.join(dataset_path, test_path))
 
     if args.dift_model == 'sd':
         dift = SDFeaturizer4Eval(cat_list=all_cats)
@@ -71,17 +72,17 @@ def evaluation(args):
     total_pck = []
     all_correct = 0
     all_total = 0
+    cat_pck_dict = {}
+    cat_avg_pck_dict = {}
 
     for cat in all_cats:
-        cat_list = cat2json[cat]
         output_dict = torch.load(os.path.join(args.save_path, f'{cat}.pth'))
 
         cat_pck = []
         cat_correct = 0
         cat_total = 0
 
-        for json_path in tqdm(cat_list):
-
+        for json_path in tqdm(cat2json[cat]):
             with open(os.path.join(dataset_path, test_path, json_path)) as temp_f:
                 data = json.load(temp_f)
 
@@ -127,10 +128,21 @@ def evaluation(args):
             cat_pck.append(correct / total)
         total_pck.extend(cat_pck)
 
-        print(f'{cat} per image PCK@0.1: {np.mean(cat_pck) * 100:.2f}')
-        print(f'{cat} per point PCK@0.1: {cat_correct / cat_total * 100:.2f}')
-    print(f'All per image PCK@0.1: {np.mean(total_pck) * 100:.2f}')
-    print(f'All per point PCK@0.1: {all_correct / all_total * 100:.2f}')
+        cat_avg_pck = np.mean(cat_pck) * 100 # average pck per image
+        cat_pck = cat_correct / cat_total * 100 # average pck
+
+        cat_pck_dict[cat] = cat_pck
+        cat_avg_pck_dict[cat] = cat_avg_pck
+        
+        
+        print(f'{cat} per image PCK@0.1: {cat_avg_pck:.2f}')
+        print(f'{cat} per point PCK@0.1: {cat_pck:.2f}')
+    
+    overall_avg_pck = np.mean(total_pck) * 100 # average pck per image
+    overall_pck = all_correct / all_total * 100 # overall pck
+    print(f'All per image PCK@0.1: {overall_avg_pck:.2f}')
+    print(f'All per point PCK@0.1: {overall_pck:.2f}')
+    return overall_pck, overall_avg_pck, cat_pck_dict, cat_avg_pck_dict
 
 
 if __name__ == "__main__":
