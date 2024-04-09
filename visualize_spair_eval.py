@@ -9,7 +9,7 @@ def main(args):
     evaluator = SPairEvaluator(args)
 
     # Define the range of 't' values to evaluate
-    t_values = range(0, 1001, 500)
+    t_values = range(0, 999, 500)
 
     # Initialize lists to store evaluation results
     per_image_pck = []
