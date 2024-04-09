@@ -1,5 +1,6 @@
 import argparse
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 from eval_spair import SpairEvaluator
 
 def main(args):
@@ -14,7 +15,7 @@ def main(args):
     per_image_pck = []
     pck = []
 
-    for t in t_values:
+    for t in tqdm(t_values):
         evaluator.set_t(t)
         # Evaluate using the SpairEvaluator
         metric_dict, per_image_metric_dict = evaluator.evaluate()
