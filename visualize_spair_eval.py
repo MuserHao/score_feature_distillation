@@ -41,7 +41,7 @@ if __name__ == "__main__":
                         help='''in the order of [width, height], resize input image
                             to [w, h] before fed into diffusion model, if set to 0, will
                             stick to the original input size. by default is 768x768.''')
-    parser.add_argument('--t_range', nargs='+', type=int, default=[0, 1001] help='range of t for diffusion')
+    parser.add_argument('--t_range', nargs='+', type=int, default=[0, 1001], help='range of t for diffusion')
     parser.add_argument('--up_ft_index', default=1, type=int, help='which upsampling block to extract the ft map')
     parser.add_argument('--ensemble_size', default=8, type=int, help='ensemble size for getting an image ft map')
     args = parser.parse_args()
