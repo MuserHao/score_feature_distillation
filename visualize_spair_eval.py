@@ -1,15 +1,15 @@
 import argparse
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from eval_spair import SpairEvaluator
+from eval_spair import SPairEvaluator
 
 def main(args):
     # Initialize the SpairEvaluator
     args.t = 0
-    evaluator = SpairEvaluator(args)
+    evaluator = SPairEvaluator(args)
 
     # Define the range of 't' values to evaluate
-    t_values = range(0, 1001, 20)
+    t_values = range(0, 1001, 100)
 
     # Initialize lists to store evaluation results
     per_image_pck = []
