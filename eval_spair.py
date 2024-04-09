@@ -81,7 +81,7 @@ class SPairEvaluator:
         pck_dict = {}
         avg_pck_dict = {}
 
-        for cat in tqdm(all_cats):
+        for cat in tqdm(self.all_cats):
             output_dict = torch.load(os.path.join(self.args.save_path, f'{cat}.pth'))
 
             cat_pck = []
