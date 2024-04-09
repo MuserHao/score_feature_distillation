@@ -62,7 +62,7 @@ class SPairEvaluator:
         for cat in tqdm(self.all_cats):
             output_dict = {}
             for image_path in self.cat2img[cat]:
-                img = Image.open(os.path.join(self.all_cats, cat, image_path))
+                img = Image.open(os.path.join(self.dataset_path, 'JPEGImages', cat, image_path))
                 output_dict[image_path] = self.dift.forward(img,
                                                     category=cat,
                                                     img_size=self.img_size,
