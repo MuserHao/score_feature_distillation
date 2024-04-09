@@ -40,7 +40,10 @@ class SPairEvaluator:
 
     def set_t(self, t):
         self.t = t
-    
+
+    def get_cat_list(self):
+        return self.all_cats
+
     def get_data_lists(self):
         for cat in self.all_cats:
             self.cat2json[cat] = []
