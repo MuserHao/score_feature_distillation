@@ -20,8 +20,8 @@ class SPairEvaluator:
 
         self.dataset_path = args.dataset_path
         self.test_path = 'PairAnnotation/test'
-        self.json_list = os.listdir(os.path.join(dataset_path, test_path))
-        self.all_cats = os.listdir(os.path.join(dataset_path, 'JPEGImages'))
+        self.json_list = os.listdir(os.path.join(self.dataset_path, self.test_path))
+        self.all_cats = os.listdir(os.path.join(self.dataset_path, 'JPEGImages'))
         self.save_path = args.save_path
         self.img_size = args.img_size
         self.t = args.t
