@@ -9,9 +9,44 @@ import os
 import json
 from PIL import Image
 import torch.nn as nn
+import matplotlib.pyplot as plt
 
+def get_data_lists(all_cats, json_list, testset_path):
+    cat2json = {}
+    cat2img = {}
+    for cat in all_cats:
+        cat2json[cat] = []
+        cat2img[cat] = []
+        for json_path in json_list:
+            if cat in json_path:
+                cat2json[cat].append(json_path)
+                with open(os.path.join(testset_path, json_path)) as temp_f:
+                    data = json.load(temp_f)
+                    temp_f.close()
+                src_imname = data['src_imname']
+                trg_imname = data['trg_imname']
+                if src_imname not in cat2img[cat]:
+                    cat2img[cat].append(src_imname)
+                if trg_imname not in cat2img[cat]:
+                    cat2img[cat].append(trg_imname)
+    return cat2json, cat2img
 
-def main(args):
+def infer_and_save_features(dift, all_cats, dataset_path, cat2img, args):
+    print("saving all test images' features...")
+    os.makedirs(args.save_path, exist_ok=True)
+    for cat in tqdm(all_cats):
+        output_dict = {}
+        for image_path in cat2img[cat]:
+            img = Image.open(os.path.join(dataset_path, 'JPEGImages', cat, image_path))
+            output_dict[image_path] = dift.forward(img,
+                                                category=cat,
+                                                img_size=args.img_size,
+                                                t=args.t,
+                                                up_ft_index=args.up_ft_index,
+                                                ensemble_size=args.ensemble_size)
+        torch.save(output_dict, os.path.join(args.save_path, f'{cat}.pth'))
+        
+def evaluation(args):
     for arg in vars(args):
         value = getattr(args,arg)
         if value is not None:
@@ -23,65 +58,31 @@ def main(args):
     test_path = 'PairAnnotation/test'
     json_list = os.listdir(os.path.join(dataset_path, test_path))
     all_cats = os.listdir(os.path.join(dataset_path, 'JPEGImages'))
-    cat2json = {}
 
-    for cat in all_cats:
-        cat_list = []
-        for i in json_list:
-            if cat in i:
-                cat_list.append(i)
-        cat2json[cat] = cat_list
-
-    # get test image path for all cats
-    cat2img = {}
-    for cat in all_cats:
-        cat2img[cat] = []
-        cat_list = cat2json[cat]
-        for json_path in cat_list:
-            with open(os.path.join(dataset_path, test_path, json_path)) as temp_f:
-                data = json.load(temp_f)
-                temp_f.close()
-            src_imname = data['src_imname']
-            trg_imname = data['trg_imname']
-            if src_imname not in cat2img[cat]:
-                cat2img[cat].append(src_imname)
-            if trg_imname not in cat2img[cat]:
-                cat2img[cat].append(trg_imname)
+    # prepare json & image lists
+    cat2json, cat2img = get_data_lists(all_cats, json_list, os.path.join(dataset_path, test_path))
 
     if args.dift_model == 'sd':
         dift = SDFeaturizer4Eval(cat_list=all_cats)
     elif args.dift_model == 'adm':
         dift = ADMFeaturizer4Eval()
-
-    print("saving all test images' features...")
-    os.makedirs(args.save_path, exist_ok=True)
-    for cat in tqdm(all_cats):
-        output_dict = {}
-        image_list = cat2img[cat]
-        for image_path in image_list:
-            img = Image.open(os.path.join(dataset_path, 'JPEGImages', cat, image_path))
-            output_dict[image_path] = dift.forward(img,
-                                                category=cat,
-                                                img_size=args.img_size,
-                                                t=args.t,
-                                                up_ft_index=args.up_ft_index,
-                                                ensemble_size=args.ensemble_size)
-        torch.save(output_dict, os.path.join(args.save_path, f'{cat}.pth'))
-
+    
+    infer_and_save_features(dift, all_cats, dataset_path, cat2img, args)
+    
     total_pck = []
     all_correct = 0
     all_total = 0
+    cat_pck_dict = {}
+    cat_avg_pck_dict = {}
 
     for cat in all_cats:
-        cat_list = cat2json[cat]
         output_dict = torch.load(os.path.join(args.save_path, f'{cat}.pth'))
 
         cat_pck = []
         cat_correct = 0
         cat_total = 0
 
-        for json_path in tqdm(cat_list):
-
+        for json_path in tqdm(cat2json[cat]):
             with open(os.path.join(dataset_path, test_path, json_path)) as temp_f:
                 data = json.load(temp_f)
 
@@ -127,10 +128,21 @@ def main(args):
             cat_pck.append(correct / total)
         total_pck.extend(cat_pck)
 
-        print(f'{cat} per image PCK@0.1: {np.mean(cat_pck) * 100:.2f}')
-        print(f'{cat} per point PCK@0.1: {cat_correct / cat_total * 100:.2f}')
-    print(f'All per image PCK@0.1: {np.mean(total_pck) * 100:.2f}')
-    print(f'All per point PCK@0.1: {all_correct / all_total * 100:.2f}')
+        cat_avg_pck = np.mean(cat_pck) * 100 # average pck per image
+        cat_pck = cat_correct / cat_total * 100 # average pck
+
+        cat_pck_dict[cat] = cat_pck
+        cat_avg_pck_dict[cat] = cat_avg_pck
+        
+        
+        print(f'{cat} per image PCK@0.1: {cat_avg_pck:.2f}')
+        print(f'{cat} per point PCK@0.1: {cat_pck:.2f}')
+    
+    overall_avg_pck = np.mean(total_pck) * 100 # average pck per image
+    overall_pck = all_correct / all_total * 100 # overall pck
+    print(f'All per image PCK@0.1: {overall_avg_pck:.2f}')
+    print(f'All per point PCK@0.1: {overall_pck:.2f}')
+    return overall_pck, overall_avg_pck, cat_pck_dict, cat_avg_pck_dict
 
 
 if __name__ == "__main__":
@@ -146,4 +158,4 @@ if __name__ == "__main__":
     parser.add_argument('--up_ft_index', default=1, type=int, help='which upsampling block to extract the ft map')
     parser.add_argument('--ensemble_size', default=8, type=int, help='ensemble size for getting an image ft map')
     args = parser.parse_args()
-    main(args)
+    evaluation(args)
