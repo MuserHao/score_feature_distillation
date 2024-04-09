@@ -10,21 +10,7 @@ import json
 from PIL import Image
 import torch.nn as nn
 
-
-def main(args):
-    for arg in vars(args):
-        value = getattr(args,arg)
-        if value is not None:
-            print('%s: %s' % (str(arg),str(value)))
-
-    torch.cuda.set_device(0)
-
-    dataset_path = args.dataset_path
-    test_path = 'PairAnnotation/test'
-    json_list = os.listdir(os.path.join(dataset_path, test_path))
-    all_cats = os.listdir(os.path.join(dataset_path, 'JPEGImages'))
-
-    # prepare json & image lists
+def get_data_lists(all_cats, dataset_path, json_list, test_path):
     cat2json = {}
     cat2img = {}
     for cat in all_cats:
@@ -42,18 +28,14 @@ def main(args):
                     cat2img[cat].append(src_imname)
                 if trg_imname not in cat2img[cat]:
                     cat2img[cat].append(trg_imname)
+    return cat2json, cat2img
 
-    if args.dift_model == 'sd':
-        dift = SDFeaturizer4Eval(cat_list=all_cats)
-    elif args.dift_model == 'adm':
-        dift = ADMFeaturizer4Eval()
-
+def infer_and_save_features(all_cats, args):
     print("saving all test images' features...")
     os.makedirs(args.save_path, exist_ok=True)
     for cat in tqdm(all_cats):
         output_dict = {}
-        image_list = cat2img[cat]
-        for image_path in image_list:
+        for image_path in cat2img[cat]:
             img = Image.open(os.path.join(dataset_path, 'JPEGImages', cat, image_path))
             output_dict[image_path] = dift.forward(img,
                                                 category=cat,
@@ -62,7 +44,30 @@ def main(args):
                                                 up_ft_index=args.up_ft_index,
                                                 ensemble_size=args.ensemble_size)
         torch.save(output_dict, os.path.join(args.save_path, f'{cat}.pth'))
+        
+def evaluation(args):
+    for arg in vars(args):
+        value = getattr(args,arg)
+        if value is not None:
+            print('%s: %s' % (str(arg),str(value)))
 
+    torch.cuda.set_device(0)
+
+    dataset_path = args.dataset_path
+    test_path = 'PairAnnotation/test'
+    json_list = os.listdir(os.path.join(dataset_path, test_path))
+    all_cats = os.listdir(os.path.join(dataset_path, 'JPEGImages'))
+
+    # prepare json & image lists
+    cat2json, cat2img = get_data_lists(all_cats, dataset_path, json_list, test_path)
+
+    if args.dift_model == 'sd':
+        dift = SDFeaturizer4Eval(cat_list=all_cats)
+    elif args.dift_model == 'adm':
+        dift = ADMFeaturizer4Eval()
+    
+    infer_and_save_features(all_cats, args)
+    
     total_pck = []
     all_correct = 0
     all_total = 0
@@ -141,4 +146,4 @@ if __name__ == "__main__":
     parser.add_argument('--up_ft_index', default=1, type=int, help='which upsampling block to extract the ft map')
     parser.add_argument('--ensemble_size', default=8, type=int, help='ensemble size for getting an image ft map')
     args = parser.parse_args()
-    main(args)
+    evaluation(args)
