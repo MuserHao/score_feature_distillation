@@ -73,7 +73,7 @@ class SPairEvaluator:
                                                     ensemble_size=self.ensemble_size)
             torch.save(output_dict, os.path.join(self.save_path, f'{cat}.pth'))
             
-    def evaluate(self, verbal=False):
+    def evaluate(self, vocal=False):
         torch.cuda.set_device(0)
         self.infer_and_save_features()
         
@@ -142,13 +142,13 @@ class SPairEvaluator:
 
             pck_dict[cat] = cat_pck
             avg_pck_dict[cat] = cat_avg_pck
-            if verbal:
+            if vocal:
                 print(f'{cat} per image PCK@0.1: {cat_avg_pck:.2f}')
                 print(f'{cat} per point PCK@0.1: {cat_pck:.2f}')
 
         pck_dict['overall'] = all_correct / all_total * 100 # overall pck
         avg_pck_dict['overall'] = np.mean(total_pck) * 100 # average pck per image
-        if verbal:
+        if vocal:
             print(f'All per image PCK@0.1: {avg_pck_dict["overall"]:.2f}')
             print(f'All per point PCK@0.1: {pck_dict["overall"]:.2f}')
         return pck_dict, avg_pck_dict
