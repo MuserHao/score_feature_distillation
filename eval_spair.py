@@ -30,7 +30,7 @@ def get_data_lists(all_cats, dataset_path, json_list, test_path):
                     cat2img[cat].append(trg_imname)
     return cat2json, cat2img
 
-def infer_and_save_features(all_cats, args):
+def infer_and_save_features(all_cats, cat2img, args):
     print("saving all test images' features...")
     os.makedirs(args.save_path, exist_ok=True)
     for cat in tqdm(all_cats):
@@ -66,7 +66,7 @@ def evaluation(args):
     elif args.dift_model == 'adm':
         dift = ADMFeaturizer4Eval()
     
-    infer_and_save_features(all_cats, args)
+    infer_and_save_features(all_cats, cat2img, args)
     
     total_pck = []
     all_correct = 0
