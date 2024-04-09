@@ -80,8 +80,8 @@ class SPairEvaluator:
         total_pck = []
         all_correct = 0
         all_total = 0
-        pck_dict = {}
-        avg_pck_dict = {}
+        per_point_pck_dict = {}
+        per_image_pck_dict = {}
 
         for cat in tqdm(self.all_cats):
             output_dict = torch.load(os.path.join(self.args.save_path, f'{cat}.pth'))
@@ -137,21 +137,18 @@ class SPairEvaluator:
                 cat_pck.append(correct / total)
             total_pck.extend(cat_pck)
 
-            cat_avg_pck = np.mean(cat_pck) * 100 # average pck per image
-            cat_pck = cat_correct / cat_total * 100 # average pck
-
-            pck_dict[cat] = cat_pck
-            avg_pck_dict[cat] = cat_avg_pck
+            per_point_pck_dict[cat] = cat_correct / cat_total * 100 # average pck
+            per_image_pck_dict[cat] = np.mean(cat_pck) * 100 # average pck per image
             if vocal:
-                print(f'{cat} per image PCK@0.1: {cat_avg_pck:.2f}')
-                print(f'{cat} per point PCK@0.1: {cat_pck:.2f}')
+                print(f'{cat} per image PCK@0.1: {per_image_pck_dict[cat]:.2f}')
+                print(f'{cat} per point PCK@0.1: {per_point_pck_dict[cat]:.2f}')
 
-        pck_dict['overall'] = all_correct / all_total * 100 # overall pck
-        avg_pck_dict['overall'] = np.mean(total_pck) * 100 # average pck per image
+        per_point_pck_dict['overall'] = all_correct / all_total * 100 # overall pck
+        per_image_pck_dict['overall'] = np.mean(total_pck) * 100 # average pck per image
         if vocal:
-            print(f'All per image PCK@0.1: {avg_pck_dict["overall"]:.2f}')
-            print(f'All per point PCK@0.1: {pck_dict["overall"]:.2f}')
-        return pck_dict, avg_pck_dict
+            print(f'All per image PCK@0.1: {per_image_pck_dict["overall"]:.2f}')
+            print(f'All per point PCK@0.1: {per_point_pck_dict["overall"]:.2f}')
+        return per_point_pck_dict, per_image_pck_dict
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='SPair-71k Evaluation Script')
