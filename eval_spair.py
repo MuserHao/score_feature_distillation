@@ -42,7 +42,7 @@ class SPairEvaluator:
         self.t = t
 
     def get_cat_list(self):
-        return self.all_cats
+        return self.all_cats.copy()
 
     def get_data_lists(self):
         for cat in self.all_cats:
