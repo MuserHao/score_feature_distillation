@@ -13,7 +13,7 @@ def main(args):
     os.makedirs(args.plot_path, exist_ok=True)
 
     # Define the range of 't' values to evaluate
-    t_values = range(args.t_range[0], args.t_range[1], 500)
+    t_values = range(args.t_range[0], args.t_range[1], 1000)
 
     # Initialize dict of lists to store evaluation results
     per_image_pck = {}
@@ -39,7 +39,7 @@ def main(args):
         plt.ylabel('PCK')
         plt.title(f'PCK Metric vs. t - Category: {cat}')
         plt.legend()
-        plt.savefig(os.path.join(args.plot_path, f'{category}_evaluation_curve.png'))
+        plt.savefig(os.path.join(args.plot_path, f'{cat}_evaluation_curve.png'))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='SPair-71k Evaluation Visualize Script')
