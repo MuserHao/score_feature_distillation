@@ -153,7 +153,6 @@ class SPairEvaluator:
             print(f'All per point PCK@0.1: {pck_dict["overall"]:.2f}')
         return pck_dict, avg_pck_dict
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='SPair-71k Evaluation Script')
     parser.add_argument('--dataset_path', type=str, default='./SPair-71k/', help='path to spair dataset')
