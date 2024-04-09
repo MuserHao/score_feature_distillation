@@ -91,7 +91,7 @@ class SPairEvaluator:
             cat_total = 0
 
             for json_path in self.cat2json[cat]:
-                with open(os.path.join(self.json_list, json_path)) as temp_f:
+                with open(os.path.join(self.dataset_path, self.test_path, json_path)) as temp_f:
                     data = json.load(temp_f)
                     temp_f.close()
 
