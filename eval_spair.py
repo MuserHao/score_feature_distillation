@@ -38,7 +38,9 @@ class SPairEvaluator:
         # prepare json & image lists
         self.get_data_lists()
 
-
+    def set_t(self, t):
+        self.t = t
+    
     def get_data_lists(self):
         for cat in self.all_cats:
             self.cat2json[cat] = []
