@@ -13,7 +13,7 @@ def main(args):
     os.makedirs(args.plot_path, exist_ok=True)
 
     # Define the range of 't' values to evaluate
-    t_values = range(args.t_range[0], args.t_range[1], 1000)
+    t_values = range(args.t_range[0], args.t_range[1], 999)
 
     # Initialize dict of lists to store evaluation results
     per_image_pck = {}
