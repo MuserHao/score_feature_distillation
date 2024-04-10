@@ -231,9 +231,9 @@ If each $x_i$ and $y_i$ in the sequences $X$ and $Y$ are high-dimensional, and b
    
    Cosine similarity between $\mathbf{X}$ and $\mathbf{Y}$ can be computed as:
 
+```math
 CosineSimilarity(\mathbf{X}, \mathbf{Y}) = \frac{\sum_{i=1}^{n} \mathbf{X}_i \cdot \mathbf{Y}_i}{\sqrt{\sum_{i=1}^{n} \| \mathbf{X}_i \|^2} \sqrt{\sum_{i=1}^{n} \| \mathbf{Y}_i \|^2}}
-
-$$\frac{\sum_{i=1}^{n} \mathbf{X}_i \cdot \mathbf{Y}_i}{\sqrt{\sum_{i=1}^{n} \| \mathbf{X}_i \|^2} \sqrt{\sum_{i=1}^{n} \| \mathbf{Y}_i \|^2}}$$
+```
 
    Where $\mathbf{X}_i$ and $\mathbf{Y}_i$ are the high-dimensional vectors at index $i$, and $\cdot$ represents the dot product.
 
