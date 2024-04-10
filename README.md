@@ -215,13 +215,11 @@ If each $x_i$ and $y_i$ in the sequences $X$ and $Y$ are high-dimensional, and b
    When dealing with high-dimensional data, you would need to define a distance metric for each dimension and compute the overall distance as the sum of distances across all dimensions.
 
    Formula:
-   Let $ X = \{x_1, x_2, ..., x_n\} \)$ and $\( Y = \{y_1, y_2, ..., y_n\} $ be the two high-dimensional sequences.
+   Let $ X = \{x_1, x_2, ..., x_n\}$ and $Y = \{y_1, y_2, ..., y_n\}$ be the two high-dimensional sequences.
    
-   DTW distance between \( X \) and \( Y \) can be computed as:
+   DTW distance between $X$ and $Y$ can be computed as:
    
-   $$
-   DTW(X, Y) = \sqrt{\sum_{i=1}^{n} \sum_{j=1}^{m} \left( d(x_i, y_j) \right)^2 }
-   $$
+   $$DTW(X, Y) = \sqrt{\sum_{i=1}^{n} \sum_{j=1}^{m} \left( d(x_i, y_j) \right)^2 }$$
    
    Where $d(x_i, y_j)$ represents the distance between high-dimensional points $x_i$ and $y_j$. This distance could be Euclidean distance, Mahalanobis distance, or any other appropriate distance metric depending on the nature of your data.
 
