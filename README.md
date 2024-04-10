@@ -215,7 +215,7 @@ If each $x_i$ and $y_i$ in the sequences $X$ and $Y$ are high-dimensional, and b
    When dealing with high-dimensional data, you would need to define a distance metric for each dimension and compute the overall distance as the sum of distances across all dimensions.
 
    Formula:
-   Let $ X = \{x_1, x_2, ..., x_n\}$ and $Y = \{y_1, y_2, ..., y_n\}$ be the two high-dimensional sequences.
+   Let $X = {x_1, x_2, ..., x_n}$ and $Y = {y_1, y_2, ..., y_n}$ be the two high-dimensional sequences.
    
    DTW distance between $X$ and $Y$ can be computed as:
    
@@ -227,13 +227,11 @@ If each $x_i$ and $y_i$ in the sequences $X$ and $Y$ are high-dimensional, and b
    When dealing with high-dimensional data, you would compute the cosine similarity between the high-dimensional vectors representing the sequences.
 
    Formula:
-   Let $\mathbf{X} = [x_1, x_2, ..., x_n] \) and \( \mathbf{Y} = [y_1, y_2, ..., y_n]$ be the high-dimensional vectors.
+   Let $\mathbf{X} = [x_1, x_2, ..., x_n]$ and $\mathbf{Y} = [y_1, y_2, ..., y_n]$ be the high-dimensional vectors.
    
    Cosine similarity between $\mathbf{X}$ and $\mathbf{Y}$ can be computed as:
    
-   $$
-   \text{Cosine Similarity}(\mathbf{X}, \mathbf{Y}) = \frac{\sum_{i=1}^{n} \mathbf{X}_i \cdot \mathbf{Y}_i}{\sqrt{\sum_{i=1}^{n} \| \mathbf{X}_i \|^2} \sqrt{\sum_{i=1}^{n} \| \mathbf{Y}_i \|^2}}
-   $$
+   $$\text{Cosine Similarity}(\mathbf{X}, \mathbf{Y}) = \frac{\sum_{i=1}^{n} \mathbf{X}_i \cdot \mathbf{Y}_i}{\sqrt{\sum_{i=1}^{n} \| \mathbf{X}_i \|^2} \sqrt{\sum_{i=1}^{n} \| \mathbf{Y}_i \|^2}}$$
    
    Where $\mathbf{X}_i$ and $\mathbf{Y}_i$ are the high-dimensional vectors at index $i$, and $\cdot$ represents the dot product.
 
