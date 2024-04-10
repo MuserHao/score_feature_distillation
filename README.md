@@ -231,8 +231,8 @@ If each $x_i$ and $y_i$ in the sequences $X$ and $Y$ are high-dimensional, and b
    
    Cosine similarity between $\mathbf{X}$ and $\mathbf{Y}$ can be computed as:
 
-   $CosineSimilarity(\mathbf{X}, \mathbf{Y}) = \frac{\sum_{i=1}^{n} \mathbf{X}_i \cdot \mathbf{Y}_i}{\sqrt{\sum_{i=1}^{n} \| \mathbf{X}_i \|^2} \sqrt{\sum_{i=1}^{n} \| \mathbf{Y}_i \|^2}}$
-   
+$$CosineSimilarity(\mathbf{X}, \mathbf{Y}) = \frac{\sum_{i=1}^{n} \mathbf{X}_i \cdot \mathbf{Y}_i}{\sqrt{\sum_{i=1}^{n} \| \mathbf{X}_i \|^2} \sqrt{\sum_{i=1}^{n} \| \mathbf{Y}_i \|^2}}
+$$   
    Where $\mathbf{X}_i$ and $\mathbf{Y}_i$ are the high-dimensional vectors at index $i$, and $\cdot$ represents the dot product.
 
 These formulations allow you to compare high-dimensional sequences while considering the characteristics of your data. The choice between DTW and Cosine Similarity would depend on the specific requirements of your application and the nature of your data.
