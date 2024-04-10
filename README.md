@@ -1,5 +1,4 @@
-# Diffusion Features (DIFT)
-This repository contains code for our NeurIPS 2023 paper "Emergent Correspondence from Image Diffusion".
+# Analysis of Bias-variance Trade-off in Diffusion Learners
 
 ### [Project Page](https://diffusionfeatures.github.io/) | [Paper](https://arxiv.org/abs/2306.03881) | [Colab Demo](https://colab.research.google.com/drive/1km6MGafhAvbPOouD3oo64aUXgLlWM6L1?usp=sharing)
 
@@ -206,6 +205,41 @@ python $HOME/davis2017-evaluation/evaluation_method.py \
     --results_path ./davis_results_adm/ \
     --davis_path $HOME/davis-2017/DAVIS/
 ```
+
+
+## Ideas about High order diffusion features
+
+If each \( x_i \) and \( y_i \) in the sequences \( X \) and \( Y \) are high-dimensional, and both sequences are of the same length, then you can still use the methods mentioned earlier, but with adjustments to handle the high-dimensional nature of the data. Let's consider both Dynamic Time Warping (DTW) and Cosine Similarity with these adjustments:
+
+1. **Dynamic Time Warping (DTW) with High-dimensional Data**:
+   When dealing with high-dimensional data, you would need to define a distance metric for each dimension and compute the overall distance as the sum of distances across all dimensions.
+
+   Formula:
+   Let \( X = \{x_1, x_2, ..., x_n\} \) and \( Y = \{y_1, y_2, ..., y_n\} \) be the two high-dimensional sequences.
+   
+   DTW distance between \( X \) and \( Y \) can be computed as:
+   
+   \[
+   DTW(X, Y) = \sqrt{\sum_{i=1}^{n} \sum_{j=1}^{m} \left( d(x_i, y_j) \right)^2 }
+   \]
+   
+   Where \( d(x_i, y_j) \) represents the distance between high-dimensional points \( x_i \) and \( y_j \). This distance could be Euclidean distance, Mahalanobis distance, or any other appropriate distance metric depending on the nature of your data.
+
+2. **Cosine Similarity with High-dimensional Data**:
+   When dealing with high-dimensional data, you would compute the cosine similarity between the high-dimensional vectors representing the sequences.
+
+   Formula:
+   Let \( \mathbf{X} = [x_1, x_2, ..., x_n] \) and \( \mathbf{Y} = [y_1, y_2, ..., y_n] \) be the high-dimensional vectors.
+   
+   Cosine similarity between \( \mathbf{X} \) and \( \mathbf{Y} \) can be computed as:
+   
+   \[
+   \text{Cosine Similarity}(\mathbf{X}, \mathbf{Y}) = \frac{\sum_{i=1}^{n} \mathbf{X}_i \cdot \mathbf{Y}_i}{\sqrt{\sum_{i=1}^{n} \| \mathbf{X}_i \|^2} \sqrt{\sum_{i=1}^{n} \| \mathbf{Y}_i \|^2}}
+   \]
+   
+   Where \( \mathbf{X}_i \) and \( \mathbf{Y}_i \) are the high-dimensional vectors at index \( i \), and \( \cdot \) represents the dot product.
+
+These formulations allow you to compare high-dimensional sequences while considering the characteristics of your data. The choice between DTW and Cosine Similarity would depend on the specific requirements of your application and the nature of your data.
 
 # Misc.
 If you find our code or paper useful to your research work, please consider citing our work using the following bibtex:
