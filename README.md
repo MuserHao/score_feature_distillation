@@ -230,8 +230,8 @@ If each $x_i$ and $y_i$ in the sequences $X$ and $Y$ are high-dimensional, and b
    Let $\mathbf{X} = [x_1, x_2, ..., x_n]$ and $\mathbf{Y} = [y_1, y_2, ..., y_n]$ be the high-dimensional vectors.
    
    Cosine similarity between $\mathbf{X}$ and $\mathbf{Y}$ can be computed as:
-   
-   $$\text{Cosine Similarity}(\mathbf{X}, \mathbf{Y}) = \frac{\sum_{i=1}^{n} \mathbf{X}_i \cdot \mathbf{Y}_i}{\sqrt{\sum_{i=1}^{n} \| \mathbf{X}_i \|^2} \sqrt{\sum_{i=1}^{n} \| \mathbf{Y}_i \|^2}}$$
+
+   $$CS(\mathbf{X}, \mathbf{Y}) = \frac{\sum_{i=1}^{n} \mathbf{X}_i \cdot \mathbf{Y}_i}{\sqrt{\sum_{i=1}^{n} \| \mathbf{X}_i \|^2} \sqrt{\sum_{i=1}^{n} \| \mathbf{Y}_i \|^2}}$$
    
    Where $\mathbf{X}_i$ and $\mathbf{Y}_i$ are the high-dimensional vectors at index $i$, and $\cdot$ represents the dot product.
 
