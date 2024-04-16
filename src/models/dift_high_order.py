@@ -4,7 +4,7 @@ import gc
 from torchvision.transforms import PILToTensor
 from .dift_sd import MyUNet2DConditionModel, OneStepSDPipeline
 
-class SDFeaturizer:
+class SEQFeaturizer:
     def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt=''):
         unet = MyUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet")
         onestep_pipe = OneStepSDPipeline.from_pretrained(sd_id, unet=unet, safety_checker=None)
@@ -28,18 +28,18 @@ class SDFeaturizer:
     def forward(self,
                 img_tensor,
                 prompt='',
-                t=261,
+                t_list=[261],
                 up_ft_index=1,
                 ensemble_size=8):
         '''
         Args:
             img_tensor: should be a single torch tensor in the shape of [1, C, H, W] or [C, H, W]
             prompt: the prompt to use, a string
-            t: the time step to use, should be an int in the range of [0, 1000]
+            t_list: a list of time steps to use, each should be an int in the range of [0, 1000]
             up_ft_index: which upsampling block of the U-Net to extract feature, you can choose [0, 1, 2, 3]
             ensemble_size: the number of repeated images used in the batch to extract features
         Return:
-            unet_ft: a torch tensor in the shape of [1, c, h, w]
+            unet_ft: a list of torch tensors, each in the shape of [1, c, h, w]
         '''
         img_tensor = img_tensor.repeat(ensemble_size, 1, 1, 1).cuda() # ensem, c, h, w
         if prompt == self.null_prompt:
@@ -51,17 +51,22 @@ class SDFeaturizer:
                 num_images_per_prompt=1,
                 do_classifier_free_guidance=False) # [1, 77, dim]
         prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1)
-        unet_ft_all = self.pipe(
-            img_tensor=img_tensor,
-            t=t,
-            up_ft_indices=[up_ft_index],
-            prompt_embeds=prompt_embeds)
-        unet_ft = unet_ft_all['up_ft'][up_ft_index] # ensem, c, h, w
-        unet_ft = unet_ft.mean(0, keepdim=True) # 1,c,h,w
-        return unet_ft
+        
+        unet_ft_list = []
+        for t in t_list:
+            unet_ft_all = self.pipe(
+                img_tensor=img_tensor,
+                t=t,
+                up_ft_indices=[up_ft_index],
+                prompt_embeds=prompt_embeds)
+            unet_ft = unet_ft_all['up_ft'][up_ft_index] # ensem, c, h, w
+            unet_ft = unet_ft.mean(0, keepdim=True) # 1,c,h,w
+            unet_ft_list.append(unet_ft)
+        
+        return unet_ft_list
 
 
-class SDFeaturizer4Eval(SDFeaturizer):
+class SEQFeaturizer4Eval(SEQFeaturizer):
     def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt='', cat_list=[]):
         super().__init__(sd_id, null_prompt)
         with torch.no_grad():
@@ -87,7 +92,7 @@ class SDFeaturizer4Eval(SDFeaturizer):
                 img,
                 category=None,
                 img_size=[768, 768],
-                t=261,
+                t_list=[261],
                 up_ft_index=1,
                 ensemble_size=8):
         if img_size is not None:
@@ -99,11 +104,16 @@ class SDFeaturizer4Eval(SDFeaturizer):
         else:
             prompt_embeds = self.null_prompt_embeds
         prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1).cuda()
-        unet_ft_all = self.pipe(
-            img_tensor=img_tensor,
-            t=t,
-            up_ft_indices=[up_ft_index],
-            prompt_embeds=prompt_embeds)
-        unet_ft = unet_ft_all['up_ft'][up_ft_index] # ensem, c, h, w
-        unet_ft = unet_ft.mean(0, keepdim=True) # 1,c,h,w
-        return unet_ft
+        
+        unet_ft_list = []
+        for t in t_list:
+            unet_ft_all = self.pipe(
+                img_tensor=img_tensor,
+                t=t,
+                up_ft_indices=[up_ft_index],
+                prompt_embeds=prompt_embeds)
+            unet_ft = unet_ft_all['up_ft'][up_ft_index] # ensem, c, h, w
+            unet_ft = unet_ft.mean(0, keepdim=True) # 1,c,h,w
+            unet_ft_list.append(unet_ft)
+        
+        return unet_ft_list
