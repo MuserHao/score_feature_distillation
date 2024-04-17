@@ -53,10 +53,10 @@ class SEQFeaturizer:
         prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1)
         
         unet_ft_list = []
-        for t in t_list:
+        for t_val in t:
             unet_ft_all = self.pipe(
                 img_tensor=img_tensor,
-                t=t,
+                t=t_val,
                 up_ft_indices=[up_ft_index],
                 prompt_embeds=prompt_embeds)
             unet_ft = unet_ft_all['up_ft'][up_ft_index] # ensem, c, h, w
@@ -106,10 +106,10 @@ class SEQFeaturizer4Eval(SEQFeaturizer):
         prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1).cuda()
         
         unet_ft_list = []
-        for t in t_list:
+        for t_val in t:
             unet_ft_all = self.pipe(
                 img_tensor=img_tensor,
-                t=t,
+                t=t_val,
                 up_ft_indices=[up_ft_index],
                 prompt_embeds=prompt_embeds)
             unet_ft = unet_ft_all['up_ft'][up_ft_index] # ensem, c, h, w
