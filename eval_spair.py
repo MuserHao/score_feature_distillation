@@ -5,6 +5,7 @@ from tqdm import tqdm
 import numpy as np
 from src.models.dift_sd import SDFeaturizer4Eval
 from src.models.dift_adm import ADMFeaturizer4Eval
+from src.models.dift_high_order import SEQFeaturizer4Eval
 import os
 import json
 from PIL import Image
@@ -21,6 +22,8 @@ class SPairEvaluator:
         self.dataset_path = args.dataset_path
         self.test_path = 'PairAnnotation/test'
         self.json_list = os.listdir(os.path.join(self.dataset_path, self.test_path))
+        if len(args.all_cats) > 0:
+            self.all_cats = args.all_cats
         self.all_cats = os.listdir(os.path.join(self.dataset_path, 'JPEGImages'))
         self.save_path = args.save_path
         self.img_size = args.img_size
@@ -32,6 +35,8 @@ class SPairEvaluator:
             self.dift = SDFeaturizer4Eval(cat_list=self.all_cats)
         elif args.dift_model == 'adm':
             self.dift = ADMFeaturizer4Eval()
+        elif args.dift_model == 'sdh':
+            self.dift = SEQFeaturizer4Eval()
 
         self.cat2json = {}
         self.cat2img = {}
@@ -162,7 +167,8 @@ if __name__ == "__main__":
                         help='''in the order of [width, height], resize input image
                             to [w, h] before fed into diffusion model, if set to 0, will
                             stick to the original input size. by default is 768x768.''')
-    parser.add_argument('--t', default=261, type=int, help='t for diffusion')
+    parser.add_argument('--t', nargs='+', default=[261], type=int, help='t list for diffusion')
+    parser.add_argument('--all_cats', nargs='+', default=[], type=str, help='Category lists to process')
     parser.add_argument('--up_ft_index', default=1, type=int, help='which upsampling block to extract the ft map')
     parser.add_argument('--ensemble_size', default=8, type=int, help='ensemble size for getting an image ft map')
     args = parser.parse_args()
