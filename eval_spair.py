@@ -23,7 +23,7 @@ class SPairEvaluator:
         self.test_path = 'PairAnnotation/test'
         self.json_list = os.listdir(os.path.join(self.dataset_path, self.test_path))
         if len(args.all_cats) > 0:
-            self.all_cats = args.all_cats
+            self.all_cats = args.cat_list
         self.all_cats = os.listdir(os.path.join(self.dataset_path, 'JPEGImages'))
         self.save_path = args.save_path
         self.img_size = args.img_size
@@ -168,7 +168,7 @@ if __name__ == "__main__":
                             to [w, h] before fed into diffusion model, if set to 0, will
                             stick to the original input size. by default is 768x768.''')
     parser.add_argument('--t', nargs='+', default=[261], type=int, help='t list for diffusion')
-    parser.add_argument('--all_cats', nargs='+', default=[], type=str, help='Category lists to process')
+    parser.add_argument('--cat_list', nargs='+', default=[], type=str, help='Category list to process')
     parser.add_argument('--up_ft_index', default=1, type=int, help='which upsampling block to extract the ft map')
     parser.add_argument('--ensemble_size', default=8, type=int, help='ensemble size for getting an image ft map')
     args = parser.parse_args()
