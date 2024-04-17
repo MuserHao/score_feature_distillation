@@ -63,7 +63,7 @@ class SEQFeaturizer:
             unet_ft = unet_ft.mean(0, keepdim=True) # 1,c,h,w
             unet_ft_list.append(unet_ft)
         
-        return unet_ft_list
+        return torch.cat(unet_ft_list, dim=1)
 
 
 class SEQFeaturizer4Eval(SEQFeaturizer):
@@ -116,4 +116,4 @@ class SEQFeaturizer4Eval(SEQFeaturizer):
             unet_ft = unet_ft.mean(0, keepdim=True) # 1,c,h,w
             unet_ft_list.append(unet_ft)
         
-        return unet_ft_list
+        return torch.cat(unet_ft_list, dim=1)
