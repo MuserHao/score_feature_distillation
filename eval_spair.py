@@ -27,16 +27,16 @@ class SPairEvaluator:
         self.all_cats = os.listdir(os.path.join(self.dataset_path, 'JPEGImages'))
         self.save_path = args.save_path
         self.img_size = args.img_size
-        self.t = args.t
         self.up_ft_index = args.up_ft_index
         self.ensemble_size = args.ensemble_size
-
+        self.t = args.t[0]
         if args.dift_model == 'sd':
             self.dift = SDFeaturizer4Eval(cat_list=self.all_cats)
         elif args.dift_model == 'adm':
             self.dift = ADMFeaturizer4Eval()
         elif args.dift_model == 'sdh':
             self.dift = SEQFeaturizer4Eval()
+            self.t = args.t
 
         self.cat2json = {}
         self.cat2img = {}
