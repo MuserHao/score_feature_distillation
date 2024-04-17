@@ -24,7 +24,8 @@ class SPairEvaluator:
         self.json_list = os.listdir(os.path.join(self.dataset_path, self.test_path))
         if len(args.cat_list) > 0:
             self.all_cats = args.cat_list
-        self.all_cats = os.listdir(os.path.join(self.dataset_path, 'JPEGImages'))
+        else:
+            self.all_cats = os.listdir(os.path.join(self.dataset_path, 'JPEGImages'))
         self.save_path = args.save_path
         self.img_size = args.img_size
         self.up_ft_index = args.up_ft_index
