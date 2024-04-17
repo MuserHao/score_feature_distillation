@@ -28,7 +28,7 @@ class SEQFeaturizer:
     def forward(self,
                 img_tensor,
                 prompt='',
-                t_list=[261],
+                t=[261],
                 up_ft_index=1,
                 ensemble_size=8):
         '''
@@ -92,7 +92,7 @@ class SEQFeaturizer4Eval(SEQFeaturizer):
                 img,
                 category=None,
                 img_size=[768, 768],
-                t_list=[261],
+                t=[261],
                 up_ft_index=1,
                 ensemble_size=8):
         if img_size is not None:
