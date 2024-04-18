@@ -33,7 +33,7 @@ class SPairEvaluator:
         self.ensemble_size = args.ensemble_size
         self.t = args.t[0]
         if args.dift_model == 'sd':
-            self.dift = SDFeaturizer4Eval(cat_list=self.all_cats)
+            self.dift = SDFeaturizer4Eval(cat_list=self.all_cats, device=self.device)
         elif args.dift_model == 'adm':
             self.dift = ADMFeaturizer4Eval()
         elif args.dift_model == 'sdh':
@@ -80,8 +80,7 @@ class SPairEvaluator:
                                                     img_size=self.img_size,
                                                     t=self.t,
                                                     up_ft_index=self.up_ft_index,
-                                                    ensemble_size=self.ensemble_size,
-                                                    device=self.device)
+                                                    ensemble_size=self.ensemble_size)
             torch.save(output_dict, os.path.join(self.save_path, f'{cat}.pth'))
             
     def evaluate(self, vocal=False):
