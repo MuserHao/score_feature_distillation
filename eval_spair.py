@@ -19,6 +19,7 @@ class SPairEvaluator:
             if value is not None:
                 print('%s: %s' % (str(arg), str(value)))
 
+        self.device = args.device
         self.dataset_path = args.dataset_path
         self.test_path = 'PairAnnotation/test'
         self.json_list = os.listdir(os.path.join(self.dataset_path, self.test_path))
@@ -83,7 +84,7 @@ class SPairEvaluator:
             torch.save(output_dict, os.path.join(self.save_path, f'{cat}.pth'))
             
     def evaluate(self, vocal=False):
-        torch.cuda.set_device(0)
+        torch.cuda.set_device(self.device)
         self.infer_and_save_features()
         
         total_pck = []
@@ -171,6 +172,7 @@ if __name__ == "__main__":
     parser.add_argument('--t', nargs='+', default=[261], type=int, help='t list for diffusion')
     parser.add_argument('--cat_list', nargs='+', default=[], type=str, help='Category list to process')
     parser.add_argument('--up_ft_index', default=1, type=int, help='which upsampling block to extract the ft map')
+    parser.add_argument('--device', default=0, type=int, help='which cuda device to use')
     parser.add_argument('--ensemble_size', default=4, type=int, help='ensemble size for getting an image ft map')
     args = parser.parse_args()
     evaluator = SPairEvaluator(args)
