@@ -94,7 +94,7 @@ class SPairEvaluator:
         per_image_pck_dict = {}
 
         for cat in tqdm(self.all_cats):
-            output_dict = torch.load(os.path.join(self.args.save_path, f'{cat}.pth'), map_location=self.device)
+            output_dict = torch.load(os.path.join(self.args.save_path, f'{cat}.pth'))
 
             cat_pck = []
             cat_correct = 0
