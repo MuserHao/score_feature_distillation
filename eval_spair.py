@@ -94,7 +94,7 @@ class SPairEvaluator:
         per_image_pck_dict = {}
 
         for cat in tqdm(self.all_cats):
-            output_dict = torch.load(os.path.join(self.args.save_path, f'{cat}.pth')).to(self.device)
+            output_dict = torch.load(os.path.join(self.args.save_path, f'{cat}.pth'))
 
             cat_pck = []
             cat_correct = 0
@@ -111,8 +111,8 @@ class SPairEvaluator:
                 src_ft = output_dict[data['src_imname']]
                 trg_ft = output_dict[data['trg_imname']]
 
-                src_ft = nn.Upsample(size=src_img_size, mode='bilinear')(src_ft)
-                trg_ft = nn.Upsample(size=trg_img_size, mode='bilinear')(trg_ft)
+                src_ft = nn.Upsample(size=src_img_size, mode='bilinear')(src_ft).to(self.device)
+                trg_ft = nn.Upsample(size=trg_img_size, mode='bilinear')(trg_ft).to(self.device)
                 h = trg_ft.shape[-2]
                 w = trg_ft.shape[-1]
 
