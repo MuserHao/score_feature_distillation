@@ -5,19 +5,20 @@ from torchvision.transforms import PILToTensor
 from .dift_sd import MyUNet2DConditionModel, OneStepSDPipeline
 
 class SEQFeaturizer:
-    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt='', device='cuda'):
+    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt='', device=0):
         unet = MyUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet")
         onestep_pipe = OneStepSDPipeline.from_pretrained(sd_id, unet=unet, safety_checker=None)
         onestep_pipe.vae.decoder = None
         onestep_pipe.scheduler = DDIMScheduler.from_pretrained(sd_id, subfolder="scheduler")
         gc.collect()
         self.device = device
-        onestep_pipe = onestep_pipe.to(self.device)
+        self.cuda_device = 'cuda:' + str(device)
+        onestep_pipe = onestep_pipe.to(self.cuda_device)
         onestep_pipe.enable_attention_slicing()
         onestep_pipe.enable_xformers_memory_efficient_attention()
         null_prompt_embeds = onestep_pipe._encode_prompt(
             prompt=null_prompt,
-            device=self.device,
+            device=self.cuda_device,
             num_images_per_prompt=1,
             do_classifier_free_guidance=False) # [1, 77, dim]
 
@@ -68,16 +69,17 @@ class SEQFeaturizer:
 
 
 class SEQFeaturizer4Eval(SEQFeaturizer):
-    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt='', cat_list=[], device='cuda'):
+    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt='', cat_list=[], device=0):
         super().__init__(sd_id, null_prompt)
         self.device = device
+        self.cuda_device = 'cuda:' + str(device)
         with torch.no_grad():
             cat2prompt_embeds = {}
             for cat in cat_list:
                 prompt = f"a photo of a {cat}"
                 prompt_embeds = self.pipe._encode_prompt(
                     prompt=prompt,
-                    device=self.device,
+                    device=self.cuda_device,
                     num_images_per_prompt=1,
                     do_classifier_free_guidance=False) # [1, 77, dim]
                 cat2prompt_embeds[cat] = prompt_embeds
