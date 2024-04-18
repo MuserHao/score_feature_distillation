@@ -80,7 +80,8 @@ class SPairEvaluator:
                                                     img_size=self.img_size,
                                                     t=self.t,
                                                     up_ft_index=self.up_ft_index,
-                                                    ensemble_size=self.ensemble_size)
+                                                    ensemble_size=self.ensemble_size,
+                                                    device=self.device)
             torch.save(output_dict, os.path.join(self.save_path, f'{cat}.pth'))
             
     def evaluate(self, vocal=False):
