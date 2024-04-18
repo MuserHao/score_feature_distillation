@@ -11,10 +11,10 @@ class SEQFeaturizer:
         onestep_pipe.vae.decoder = None
         onestep_pipe.scheduler = DDIMScheduler.from_pretrained(sd_id, subfolder="scheduler")
         gc.collect()
-        onestep_pipe = onestep_pipe.to("cuda")
+        self.device = device
+        onestep_pipe = onestep_pipe.to(self.device)
         onestep_pipe.enable_attention_slicing()
         onestep_pipe.enable_xformers_memory_efficient_attention()
-        self.device = device
         null_prompt_embeds = onestep_pipe._encode_prompt(
             prompt=null_prompt,
             device=self.device,
@@ -105,7 +105,7 @@ class SEQFeaturizer4Eval(SEQFeaturizer):
             prompt_embeds = self.cat2prompt_embeds[category]
         else:
             prompt_embeds = self.null_prompt_embeds
-        prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1).cuda()
+        prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1).cuda(self.device)
         
         unet_ft_list = []
         for t_val in t:
