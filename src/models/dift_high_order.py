@@ -49,7 +49,7 @@ class SEQFeaturizer:
         else:
             prompt_embeds = self.pipe._encode_prompt(
                 prompt=prompt,
-                device=device,
+                device=self.cuda_device,
                 num_images_per_prompt=1,
                 do_classifier_free_guidance=False) # [1, 77, dim]
         prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1)
