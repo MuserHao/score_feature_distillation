@@ -64,6 +64,7 @@ if __name__ == "__main__":
     parser.add_argument('--cat_list', nargs='+', default=[], type=str, help='Category list to process')
     parser.add_argument('--up_ft_index', default=1, type=int, help='which upsampling block to extract the ft map')
     parser.add_argument('--ensemble_size', default=8, type=int, help='ensemble size for getting an image ft map')
+    parser.add_argument('--device', default=0, type=int, help='which cuda device to use')
     parser.add_argument('--plot_path', type=str, default='./plots', help='path to save plots')
     args = parser.parse_args()
     main(args)
