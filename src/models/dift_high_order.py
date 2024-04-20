@@ -5,20 +5,18 @@ from torchvision.transforms import PILToTensor
 from .dift_sd import MyUNet2DConditionModel, OneStepSDPipeline
 
 class SEQFeaturizer:
-    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt='', device=0):
+    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt=''):
         unet = MyUNet2DConditionModel.from_pretrained(sd_id, subfolder="unet")
         onestep_pipe = OneStepSDPipeline.from_pretrained(sd_id, unet=unet, safety_checker=None)
         onestep_pipe.vae.decoder = None
         onestep_pipe.scheduler = DDIMScheduler.from_pretrained(sd_id, subfolder="scheduler")
         gc.collect()
-        self.device = device
-        self.cuda_device = 'cuda:' + str(device)
-        onestep_pipe = onestep_pipe.to(self.cuda_device)
+        onestep_pipe = onestep_pipe.to("cuda")
         onestep_pipe.enable_attention_slicing()
         onestep_pipe.enable_xformers_memory_efficient_attention()
         null_prompt_embeds = onestep_pipe._encode_prompt(
             prompt=null_prompt,
-            device=self.cuda_device,
+            device='cuda',
             num_images_per_prompt=1,
             do_classifier_free_guidance=False) # [1, 77, dim]
 
@@ -43,13 +41,13 @@ class SEQFeaturizer:
         Return:
             unet_ft: a list of torch tensors, each in the shape of [1, c, h, w]
         '''
-        img_tensor = img_tensor.repeat(ensemble_size, 1, 1, 1).cuda(self.device) # ensem, c, h, w
+        img_tensor = img_tensor.repeat(ensemble_size, 1, 1, 1).cuda() # ensem, c, h, w
         if prompt == self.null_prompt:
             prompt_embeds = self.null_prompt_embeds
         else:
             prompt_embeds = self.pipe._encode_prompt(
                 prompt=prompt,
-                device=self.cuda_device,
+                device='cuda',
                 num_images_per_prompt=1,
                 do_classifier_free_guidance=False) # [1, 77, dim]
         prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1)
@@ -69,17 +67,15 @@ class SEQFeaturizer:
 
 
 class SEQFeaturizer4Eval(SEQFeaturizer):
-    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt='', cat_list=[], device=0):
+    def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt='', cat_list=[]):
         super().__init__(sd_id, null_prompt)
-        self.device = device
-        self.cuda_device = 'cuda:' + str(device)
         with torch.no_grad():
             cat2prompt_embeds = {}
             for cat in cat_list:
                 prompt = f"a photo of a {cat}"
                 prompt_embeds = self.pipe._encode_prompt(
                     prompt=prompt,
-                    device=self.cuda_device,
+                    device='cuda',
                     num_images_per_prompt=1,
                     do_classifier_free_guidance=False) # [1, 77, dim]
                 cat2prompt_embeds[cat] = prompt_embeds
@@ -102,12 +98,12 @@ class SEQFeaturizer4Eval(SEQFeaturizer):
         if img_size is not None:
             img = img.resize(img_size)
         img_tensor = (PILToTensor()(img) / 255.0 - 0.5) * 2
-        img_tensor = img_tensor.unsqueeze(0).repeat(ensemble_size, 1, 1, 1).cuda(self.device) # ensem, c, h, w
+        img_tensor = img_tensor.unsqueeze(0).repeat(ensemble_size, 1, 1, 1).cuda() # ensem, c, h, w
         if category in self.cat2prompt_embeds:
             prompt_embeds = self.cat2prompt_embeds[category]
         else:
             prompt_embeds = self.null_prompt_embeds
-        prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1).cuda(self.device)
+        prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1).cuda()
         
         unet_ft_list = []
         for t_val in t:
