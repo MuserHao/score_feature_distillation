@@ -20,7 +20,7 @@ def main(args):
 
     # Define the range of 't' values to evaluate
     t_vals = [args.t]
-    while t_vals[-1][-1] < args.step_end[1]:
+    while t_vals[-1][-1] < args.step_end[1] - args.step_end[0]:
         t_vals.append(increment(t_vals[-1], args.step_end[0]))
     t_values = [sublist[0] for sublist in t_vals]
 
