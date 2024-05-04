@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 from src.models.dift_sd import SDFeaturizer4Eval
 from src.models.dift_adm import ADMFeaturizer4Eval
-from src.models.dift_high_order import SEQFeaturizer4Eval
+from src.models.dift_sdseq import SEQFeaturizer4Eval
 import os
 import json
 from PIL import Image
