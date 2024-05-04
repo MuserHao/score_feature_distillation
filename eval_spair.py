@@ -3,7 +3,7 @@ import torch
 from torch.nn import functional as F
 from tqdm import tqdm
 import numpy as np
-from src.models.dift_sd import SDFeaturizer4Eval
+from src.models.dift_sd import SDFeaturizer4Eval, SD_Gradient_Featurizer4Eval
 from src.models.dift_adm import ADMFeaturizer4Eval
 from src.models.dift_sdseq import SEQFeaturizer4Eval
 import os
@@ -38,6 +38,8 @@ class SPairEvaluator:
         elif args.dift_model == 'sdh':
             self.dift = SEQFeaturizer4Eval()
             self.t = args.t
+        elif args.dift_model == 'sdg':
+            self.dift = SD_Gradient_Featurizer4Eval()
 
         self.cat2json = {}
         self.cat2img = {}
@@ -163,7 +165,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='SPair-71k Evaluation Script')
     parser.add_argument('--dataset_path', type=str, default='./SPair-71k/', help='path to spair dataset')
     parser.add_argument('--save_path', type=str, default='/scratch/lt453/spair_ft/', help='path to save features')
-    parser.add_argument('--dift_model', choices=['sd', 'adm', 'sdh'], default='sd', help="which dift version to use")
+    parser.add_argument('--dift_model', choices=['sd', 'adm', 'sdh', 'sdg'], default='sd', help="which dift version to use")
     parser.add_argument('--img_size', nargs='+', type=int, default=[768, 768],
                         help='''in the order of [width, height], resize input image
                             to [w, h] before fed into diffusion model, if set to 0, will
