@@ -52,6 +52,8 @@ class SEQFeaturizer:
                 do_classifier_free_guidance=False) # [1, 77, dim]
         prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1)
         
+        img_tensor.requires_grad = True  # Enable gradient computation
+
         unet_ft_list = []
         for t_val in t:
             unet_ft_all = self.pipe(
@@ -62,8 +64,16 @@ class SEQFeaturizer:
             unet_ft = unet_ft_all['up_ft'][up_ft_index] # ensem, c, h, w
             unet_ft = unet_ft.mean(0, keepdim=True) # 1,c,h,w
             unet_ft_list.append(unet_ft)
+
+        feature_maps = torch.cat(unet_ft_list, dim=1)
+
+        # Calculate gradient of feature map with respect to input image
+        feature_maps.backward(torch.ones_like(feature_maps))  
+
+        # Retrieve the gradients
+        gradients = img_tensor.grad
         
-        return torch.cat(unet_ft_list, dim=1)
+        return gradients
 
 
 class SEQFeaturizer4Eval(SEQFeaturizer):
@@ -104,7 +114,9 @@ class SEQFeaturizer4Eval(SEQFeaturizer):
         else:
             prompt_embeds = self.null_prompt_embeds
         prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1).cuda()
-        
+
+        img_tensor.requires_grad = True  # Enable gradient computation
+
         unet_ft_list = []
         for t_val in t:
             unet_ft_all = self.pipe(
@@ -115,5 +127,13 @@ class SEQFeaturizer4Eval(SEQFeaturizer):
             unet_ft = unet_ft_all['up_ft'][up_ft_index] # ensem, c, h, w
             unet_ft = unet_ft.mean(0, keepdim=True) # 1,c,h,w
             unet_ft_list.append(unet_ft)
+
+        feature_maps = torch.cat(unet_ft_list, dim=1)
+
+        # Calculate gradient of feature map with respect to input image
+        feature_maps.backward(torch.ones_like(feature_maps))  
+
+        # Retrieve the gradients
+        gradients = img_tensor.grad
         
-        return torch.cat(unet_ft_list, dim=1)
+        return gradients
