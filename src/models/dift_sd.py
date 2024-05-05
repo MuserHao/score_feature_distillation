@@ -1,6 +1,7 @@
 from diffusers import StableDiffusionPipeline
 import torch
 import torch.nn as nn
+from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Any, Callable, Dict, List, Optional, Union
