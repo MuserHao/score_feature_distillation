@@ -36,10 +36,10 @@ class SPairEvaluator:
         elif args.dift_model == 'adm':
             self.dift = ADMFeaturizer4Eval()
         elif args.dift_model == 'sdh':
-            self.dift = SEQFeaturizer4Eval()
+            self.dift = SEQFeaturizer4Eval(cat_list=self.all_cats)
             self.t = args.t
         elif args.dift_model == 'sdg':
-            self.dift = SD_Gradient_Featurizer4Eval()
+            self.dift = SD_Gradient_Featurizer4Eval(cat_list=self.all_cats)
 
         self.cat2json = {}
         self.cat2img = {}
