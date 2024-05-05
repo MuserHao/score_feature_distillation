@@ -13,7 +13,6 @@ from PIL import Image
 from torchvision.transforms import PILToTensor
 
 class MyUNet2DConditionModel(UNet2DConditionModel):
-    @torch.enable_grad()
     def forward(
         self,
         sample: torch.FloatTensor,
@@ -209,7 +208,7 @@ class SDFeaturizer:
         self.null_prompt = null_prompt
         self.pipe = onestep_pipe
 
-    # @torch.no_grad()
+    @torch.no_grad()
     def forward(self,
                 img_tensor,
                 prompt='',
