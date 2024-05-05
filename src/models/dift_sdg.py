@@ -300,5 +300,5 @@ class SD_Gradient_Featurizer4Eval(SDGFeaturizer):
                     
         # gradients = torch.autograd.grad(unet_ft, img_tensor, torch.ones_like(unet_ft), retain_graph=True)[0]
         print(gradients.shape)
-        peint(unet_ft.shape)
+        print(unet_ft.shape)
         return gradients
