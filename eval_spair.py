@@ -3,7 +3,8 @@ import torch
 from torch.nn import functional as F
 from tqdm import tqdm
 import numpy as np
-from src.models.dift_sd import SDFeaturizer4Eval, SD_Gradient_Featurizer4Eval
+from src.models.dift_sd import SDFeaturizer4Eval, 
+from src.models.dift_sdg import SD_Gradient_Featurizer4Eval
 from src.models.dift_adm import ADMFeaturizer4Eval
 from src.models.dift_sdseq import SEQFeaturizer4Eval
 import os
