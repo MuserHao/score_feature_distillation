@@ -329,7 +329,7 @@ class SD_Gradient_Featurizer4Eval(SDFeaturizer):
             prompt_embeds = self.null_prompt_embeds
         prompt_embeds = prompt_embeds.repeat(ensemble_size, 1, 1).cuda()
 
-        img_tensor.requires_grad = True  # Enable gradient computation
+        img_tensor=Variable(img_tensor, requires_grad=True) # Enable gradient computation
 
         unet_ft_all = self.pipe(
             img_tensor=img_tensor,
