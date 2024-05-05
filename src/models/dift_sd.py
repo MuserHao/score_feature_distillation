@@ -312,7 +312,7 @@ class SD_Gradient_Featurizer4Eval(SDFeaturizer):
         gc.collect()
         torch.cuda.empty_cache()
 
-    # @torch.enable_grad()
+    @torch.enable_grad()
     def forward(self,
                 img,
                 category=None,
