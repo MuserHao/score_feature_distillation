@@ -244,7 +244,7 @@ class SDGFeaturizer:
         unet_ft = unet_ft.mean(0, keepdim=True) # 1,c,h,w
         return unet_ft
 
-class SD_Gradient_Featurizer4Eval(SDFeaturizer):
+class SD_Gradient_Featurizer4Eval(SDGFeaturizer):
     def __init__(self, sd_id='stabilityai/stable-diffusion-2-1', null_prompt='', cat_list=[]):
         super().__init__(sd_id, null_prompt)
         with torch.no_grad():
