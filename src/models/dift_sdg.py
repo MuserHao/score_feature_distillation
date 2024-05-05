@@ -292,12 +292,13 @@ class SD_Gradient_Featurizer4Eval(SDGFeaturizer):
         unet_ft = unet_ft_all['up_ft'][up_ft_index] # ensem, c, h, w
         unet_ft = unet_ft.mean(0, keepdim=True) # 1,c,h,w
 
-        # # Calculate gradient of feature map with respect to input image
-        # unet_ft.backward(torch.ones_like(unet_ft), retain_graph=True)  
+        # Calculate gradient of feature map with respect to input image
+        unet_ft.backward(torch.ones_like(unet_ft), retain_graph=True)  
 
-        # # Retrieve the gradients
-        # gradients = img_tensor.grad
+        # Retrieve the gradients
+        gradients = img_tensor.grad
                     
-        gradients = torch.autograd.grad(unet_ft, img_tensor, torch.ones_like(unet_ft), retain_graph=True)[0]
-
+        # gradients = torch.autograd.grad(unet_ft, img_tensor, torch.ones_like(unet_ft), retain_graph=True)[0]
+        print(gradients.shape)
+        peint(unet_ft.shape)
         return gradients
