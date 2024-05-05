@@ -161,7 +161,7 @@ class MyUNet2DConditionModel(UNet2DConditionModel):
         return output
 
 class OneStepSDPipeline(StableDiffusionPipeline):
-    @torch.no_grad()
+    # @torch.no_grad()
     def __call__(
         self,
         img_tensor,
