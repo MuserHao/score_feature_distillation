@@ -25,6 +25,33 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+plots/
+plots_person/
+plots_person_diff/
+plots_person_diff_old1/
+plots_person_diff_old2/
+plots_person_diff_old3/
+plots_person_diff_old4/
+plots_person_diff2/
+plots_person_diff2_old/
+plots_person_grad1/
+plots_person_grad2/
+plots_person_grad3/
+plots_person_random_proj/
+SPair-71k/
+diffusers/
+temp_images/
+temp_points/
+*.pt
+spair_ft/
+temp_features/
+plot_res/
+*.pth
+*.gif
+*.png
+*.jpg
+
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
