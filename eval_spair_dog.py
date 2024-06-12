@@ -24,6 +24,7 @@ class SPairEvaluator:
         self.test_path = 'PairAnnotation/test'
         self.json_list = os.listdir(os.path.join(self.dataset_path, self.test_path)) # 12234
         self.all_cats = os.listdir(os.path.join(self.dataset_path, 'JPEGImages'))
+        self.all_cats = ['dog']
         self.save_path = args.save_path
         self.img_size = args.img_size
         self.t = args.t
@@ -999,4 +1000,14 @@ if __name__ == "__main__":
     parser.add_argument('--ensemble_size', default=8, type=int, help='ensemble size for getting an image ft map')
     args = parser.parse_args()
     evaluator = SPairEvaluator(args)
-    evaluator.evaluate(vocal=True)
+    img_pcks = []
+    pot_pcks = []
+    for i in range(10):
+        per_point_pck_dict, per_image_pck_dict = evaluator.evaluate(vocal=True)
+        assert per_image_pck_dict['dog'] == per_image_pck_dict['overall']
+        assert per_point_pck_dict['dog'] == per_point_pck_dict['overall']
+        img_pcks.append(per_image_pck_dict['dog'])
+        pot_pcks.append(per_point_pck_dict['dog'])
+    print(max(img_pcks), min(img_pcks), np.mean(img_pcks))
+    print(max(pot_pcks), min(pot_pcks), np.mean(pot_pcks))
+    

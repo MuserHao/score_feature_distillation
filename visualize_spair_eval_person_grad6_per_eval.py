@@ -65,10 +65,11 @@ def main(args):
     # ws = [[0, 0], [10, 0], [10, -2], [10, -3], [10, -4], [10, -5]]
     # ws = [[0, 0], [10, 0], [10, -10], [10, -20], [10, -30], [10, -40], [10, -50]]
     # ws = [[0, 0], [10, 0], [10, -100], [10, -200], [10, -300], [10, -400], [10, -500]]
-    ws = [[0, 0], [10, 0], [0, -100], [0, -200], [0, -300], [0, -400], [0, -500]]
+    # ws = [[0, 0], [10, 0], [0, -100], [0, -200], [0, -300], [0, -400], [0, -500]]
+    ws = [[1, 0, 0], [1, 10, 0], [1, 10, -2000], [1, 0, -2000], [0, 10, -2000], [0, 0, -2000], [0, 10, 0], [0, 20,0]]
     per_point_pck_ress = []
     per_image_pck_ress = []
-    for w1, w2 in ws:
+    for w0, w1, w2 in ws:
         values1 = []
         values2 = []
         per_point_pck_res = []
@@ -126,11 +127,14 @@ def main(args):
                         all_total += 1
                         src_point = data['src_kps'][idx]
                         trg_point = data['trg_kps'][idx]
-                        
-                        src_fet = src_fet + w1*src_t_grad + w2*src_z_grad
+                        # print(src_fet.mean(), src_fet.std(), (w1*src_t_grad).mean(), (w1*src_t_grad).std(), (w2*src_z_grad).mean(), (w2*src_z_grad).std())
+                        src_fet = w0 * src_fet + w1*src_t_grad + w2*src_z_grad
+                        # print(src_fet.mean(), src_fet.std())
                         resized_src_fet = resize(src_fet, src_img_size)
-                            
-                        trg_fet = trg_fet + w1*trg_t_grad + w2*trg_z_grad
+                        # print(trg_fet.mean(), trg_fet.std(), (w1*trg_t_grad).mean(), (w1*trg_t_grad).std(), (w2*trg_z_grad).mean(), (w2*trg_z_grad).std())
+                        trg_fet = w0 * trg_fet + w1*trg_t_grad + w2*trg_z_grad
+                        # print(trg_fet.mean(), trg_fet.std())
+                        # exit(0)
                         resized_trg_fet = resize(trg_fet, trg_img_size)
 
                         num_channel = src_fet.shape[0]
@@ -160,26 +164,26 @@ def main(args):
         per_point_pck_ress.append(per_point_pck_res)
     plt.figure()
     for res, ww in zip(per_image_pck_ress, ws):
-        ww1, ww2 = ww
-        wsstr = str(ww1) + '_' + str(ww2)
+        ww0, ww1, ww2 = ww
+        wsstr = str(ww0) + '_' + str(ww1) + '_' + str(ww2)
         plt.plot(t_values, res, label=f'{wsstr}')
     plt.xlabel('t')
     plt.ylabel('PCK')
     plt.title(f'PCK Metric vs. t - Category: Person')
     plt.legend()
-    plt.savefig(os.path.join(args.save_path, f'Person_Per_Image_evaluation_curve_{args.repeat_direc}8.png'))
+    plt.savefig(os.path.join(args.save_path, f'Person_Per_Image_evaluation_curve_{args.repeat_direc}10.png'))
     
     plt.figure()
     # plt.plot(t_values, per_point_pck_res, label='Per Point PCK@0.1')
     for res, ww in zip(per_point_pck_ress, ws):
-        ww1, ww2 = ww
-        wsstr = str(ww1) + '_' + str(ww2)
+        ww0, ww1, ww2 = ww
+        wsstr = str(ww0) + '_' + str(ww1) + '_' + str(ww2)
         plt.plot(t_values, res, label=f'{wsstr}')
     plt.xlabel('t')
     plt.ylabel('PCK')
     plt.title(f'PCK Metric vs. t - Category: Person')
     plt.legend()
-    plt.savefig(os.path.join(args.save_path, f'Person_Per_Point_evaluation_curve_{args.repeat_direc}8.png'))
+    plt.savefig(os.path.join(args.save_path, f'Person_Per_Point_evaluation_curve_{args.repeat_direc}10.png'))
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='SPair-71k Evaluation Visualize Script')

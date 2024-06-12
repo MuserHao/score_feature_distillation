@@ -50,6 +50,8 @@ plot_res/
 *.gif
 *.png
 *.jpg
+plot_res_tz/
+txt2image/guid7.5
 
 
 
