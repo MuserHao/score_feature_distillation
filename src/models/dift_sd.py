@@ -1,7 +1,8 @@
-from diffusers import StableDiffusionPipeline
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing import Any, Callable, Dict, List, Optional, Union
+from diffusers import StableDiffusionPipeline
 from diffusers import StableDiffusionPipeline
 from diffusers.models.unet_2d_condition import UNet2DConditionModel
 from diffusers import DDIMScheduler
