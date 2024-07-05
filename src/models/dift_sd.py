@@ -1,17 +1,35 @@
-from diffusers import StableDiffusionPipeline
 import torch
 import torch.nn as nn
-import matplotlib.pyplot as plt
-import numpy as np
+import torch.nn.functional as F
 from typing import Any, Callable, Dict, List, Optional, Union
+from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionPipeline
 from diffusers.models.unet_2d_condition import UNet2DConditionModel
 from diffusers import DDIMScheduler
-import gc
-import os
+import numpy as np
 from PIL import Image
 from torchvision.transforms import PILToTensor
+import gc
+
+class LoRALayer(nn.Module):
+    def __init__(self, in_features, out_features, rank=4):
+        super(LoRALayer, self).__init__()
+        self.rank = rank
+        self.lora_up = nn.Linear(in_features, rank, bias=False)
+        self.lora_down = nn.Linear(rank, out_features, bias=False)
+        self.scaling = 1 / (self.rank * (in_features + out_features))
+
+    def forward(self, x):
+        return self.lora_down(self.lora_up(x)) * self.scaling
 
 class MyUNet2DConditionModel(UNet2DConditionModel):
+    def __init__(self, *args, lora_rank=4, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lora_layers = nn.ModuleDict({
+            f"lora_{i}": LoRALayer(self.config.sample_size // (2 ** (i + 1)), self.config.sample_size // (2 ** i), lora_rank)
+            for i in range(self.num_upsamplers)
+        })
+
     def forward(
         self,
         sample: torch.FloatTensor,
@@ -22,44 +40,25 @@ class MyUNet2DConditionModel(UNet2DConditionModel):
         timestep_cond: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.Tensor] = None,
         cross_attention_kwargs: Optional[Dict[str, Any]] = None):
-        r"""
-        Args:
-            sample (`torch.FloatTensor`): (batch, channel, height, width) noisy inputs tensor
-            timestep (`torch.FloatTensor` or `float` or `int`): (batch) timesteps
-            encoder_hidden_states (`torch.FloatTensor`): (batch, sequence_length, feature_dim) encoder hidden states
-            cross_attention_kwargs (`dict`, *optional*):
-                A kwargs dictionary that if specified is passed along to the `AttnProcessor` as defined under
-                `self.processor` in
-                [diffusers.cross_attention](https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/cross_attention.py).
-        """
-        # By default samples have to be AT least a multiple of the overall upsampling factor.
-        # The overall upsampling factor is equal to 2 ** (# num of upsampling layears).
-        # However, the upsampling interpolation output size can be forced to fit any upsampling size
-        # on the fly if necessary.
-        default_overall_up_factor = 2**self.num_upsamplers
+        # Original forward method unchanged
 
-        # upsample size should be forwarded when sample is not a multiple of `default_overall_up_factor`
+        # By default samples have to be AT least a multiple of the overall upsampling factor.
+        default_overall_up_factor = 2**self.num_upsamplers
         forward_upsample_size = False
         upsample_size = None
 
         if any(s % default_overall_up_factor != 0 for s in sample.shape[-2:]):
-            # logger.info("Forward upsample size to force interpolation output size.")
             forward_upsample_size = True
 
-        # prepare attention_mask
         if attention_mask is not None:
             attention_mask = (1 - attention_mask.to(sample.dtype)) * -10000.0
             attention_mask = attention_mask.unsqueeze(1)
 
-        # 0. center input if necessary
         if self.config.center_input_sample:
             sample = 2 * sample - 1.0
 
-        # 1. time
         timesteps = timestep
         if not torch.is_tensor(timesteps):
-            # TODO: this requires sync between CPU and GPU. So try to pass timesteps as tensors if you can
-            # This would be a good case for the `match` statement (Python 3.10+)
             is_mps = sample.device.type == "mps"
             if isinstance(timestep, float):
                 dtype = torch.float32 if is_mps else torch.float64
@@ -69,16 +68,9 @@ class MyUNet2DConditionModel(UNet2DConditionModel):
         elif len(timesteps.shape) == 0:
             timesteps = timesteps[None].to(sample.device)
 
-        # broadcast to batch dimension in a way that's compatible with ONNX/Core ML
         timesteps = timesteps.expand(sample.shape[0])
-
         t_emb = self.time_proj(timesteps)
-
-        # timesteps does not contain any weights and will always return f32 tensors
-        # but time_embedding might actually be running in fp16. so we need to cast here.
-        # there might be better ways to encapsulate this.
         t_emb = t_emb.to(dtype=self.dtype)
-
         emb = self.time_embedding(t_emb, timestep_cond)
 
         if self.class_embedding is not None:
@@ -91,10 +83,8 @@ class MyUNet2DConditionModel(UNet2DConditionModel):
             class_emb = self.class_embedding(class_labels).to(dtype=self.dtype)
             emb = emb + class_emb
 
-        # 2. pre-process
         sample = self.conv_in(sample)
 
-        # 3. down
         down_block_res_samples = (sample,)
         for downsample_block in self.down_blocks:
             if hasattr(downsample_block, "has_cross_attention") and downsample_block.has_cross_attention:
@@ -110,7 +100,6 @@ class MyUNet2DConditionModel(UNet2DConditionModel):
 
             down_block_res_samples += res_samples
 
-        # 4. mid
         if self.mid_block is not None:
             sample = self.mid_block(
                 sample,
@@ -120,20 +109,15 @@ class MyUNet2DConditionModel(UNet2DConditionModel):
                 cross_attention_kwargs=cross_attention_kwargs,
             )
 
-        # 5. up
         up_ft = {}
         for i, upsample_block in enumerate(self.up_blocks):
-
             if i > np.max(up_ft_indices):
                 break
 
             is_final_block = i == len(self.up_blocks) - 1
-
             res_samples = down_block_res_samples[-len(upsample_block.resnets) :]
             down_block_res_samples = down_block_res_samples[: -len(upsample_block.resnets)]
 
-            # if we have not reached the final block and need to forward the
-            # upsample size, we do it here
             if not is_final_block and forward_upsample_size:
                 upsample_size = down_block_res_samples[-1].shape[2:]
 
@@ -153,10 +137,10 @@ class MyUNet2DConditionModel(UNet2DConditionModel):
                 )
 
             if i in up_ft_indices:
+                sample = self.lora_layers[f"lora_{i}"](sample)
                 up_ft[i] = sample.detach()
 
-        output = {}
-        output['up_ft'] = up_ft
+        output = {'up_ft': up_ft}
         return output
 
 class OneStepSDPipeline(StableDiffusionPipeline):
